@@ -4,7 +4,9 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "pg": "^8.11.3",
+    "redis": "^4.6.10"
   },
   "name": "user-service",
   "version": "1.0.0",
