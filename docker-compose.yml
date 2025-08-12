@@ -15,9 +15,12 @@ services:
       - POSTGRES_DB=user_service
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_SERVICE_NAME=user-service
     depends_on:
       - postgres
       - redis
+      - tempo
     networks:
       - app-network
 
@@ -35,6 +38,32 @@ services:
       image: redis:7
       networks:
         - app-network
+  tempo:
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - "3200:3200" # HTTP API
+      - "4317:4317" # OTLP gRPC
+    networks:
+      - app-network
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - tempo
+    networks:
+      - app-network
+  
+volumes:
+  postgres-data:
 
 networks:
   app-network:
